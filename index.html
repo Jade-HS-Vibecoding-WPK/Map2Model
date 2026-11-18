@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Map2Model</title>
+  <meta name="description" content="Von der Karte zum Lasermodell: Gebiet wählen, in Revit bearbeiten, Laserdatei erzeugen.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+
+  <!-- Karte: Leaflet 1.9.4 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ================= Startbildschirm ================= -->
+<section id="start" class="start" aria-labelledby="start-titel" hidden>
+  <header class="start-kopf">
+    <span class="logo">
+      <span class="logo-zeichen" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z" fill="currentColor" opacity=".35"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="logo-name">Map2Model</span>
+    </span>
+    <span class="start-kopf-rechts">Jade Hochschule · Vibecoding KI-Werkstatt</span>
+  </header>
+
+  <div class="start-haupt">
+    <div class="start-text">
+      <p class="start-zeile">Städtebau-Modelle per Laser</p>
+      <h1 id="start-titel">Von der Karte<br>zum <span>Lasermodell</span>.</h1>
+      <p class="start-einleitung">Adresse eingeben, Gebiet wählen, im CAD-Programm Abriss und Neubau planen – und eine fertige Laserdatei nach den Regeln der Jade Hochschule herunterladen. Mit nummerierten Teilen, damit jedes Stück seinen Platz findet.</p>
+      <a href="#gebiet" class="knopf-haupt start-knopf">
+        Los geht’s
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0l-6-6m6 6l-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <p class="start-klein">Läuft direkt im Browser · für jede Adresse · Kartendaten © OpenStreetMap-Mitwirkende</p>
+    </div>
+    <div class="start-grafik" aria-hidden="true">
+      <svg id="start-grafik" viewBox="0 0 560 420"></svg>
+    </div>
+  </div>
+
+  <ol class="start-schritte">
+    <li>
+      <span class="start-nr">1</span>
+      <div><b>Gebiet wählen</b><span>Adresse suchen, Rechteck aufziehen, IFC-Datei für Revit herunterladen.</span></div>
+    </li>
+    <li>
+      <span class="start-nr">2</span>
+      <div><b>Im CAD-Programm bearbeiten</b><span>Revit, Archicad, Vectorworks … – Abriss löschen, Neubauten einsetzen, als IFC speichern.</span></div>
+    </li>
+    <li>
+      <span class="start-nr">3</span>
+      <div><b>Laserdatei erzeugen</b><span>Platte, Material und Maßstab wählen – DXF und SVG mit nummerierten Teilen.</span></div>
+    </li>
+  </ol>
+</section>
+
+<div class="app">
+
+  <!-- ================= Seitenleiste ================= -->
+  <aside class="seite">
+
+    <header class="seite-kopf">
+      <a class="logo" href="#start" title="Zur Startseite">
+        <span class="logo-zeichen" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z" fill="currentColor" opacity=".35"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </span>
+        <span>
+          <span class="logo-name">Map2Model</span>
+          <span class="logo-zusatz">Von der Karte zum Lasermodell</span>
+        </span>
+      </a>
+    </header>
+
+    <nav class="schritte" aria-label="Arbeitsschritte">
+      <a href="#gebiet" class="schritt" data-ansicht="gebiet">
+        <span class="nr">1</span>
+        <span class="schritt-text"><b>Gebiet wählen</b><small>Adresse suchen, Ausschnitt festlegen</small></span>
+      </a>
+      <a href="#revit" class="schritt" data-ansicht="revit">
+        <span class="nr">2</span>
+        <span class="schritt-text"><b>Im CAD-Programm bearbeiten</b><small>Abriss löschen, Neubau einsetzen</small></span>
+      </a>
+      <a href="#laser" class="schritt" data-ansicht="laser">
+        <span class="nr">3</span>
+        <span class="schritt-text"><b>Laserdatei</b><small>Hochladen, einstellen, erzeugen</small></span>
+      </a>
+    </nav>
+
+    <!-- ---------- Panel 1: Gebiet ---------- -->
+    <section class="panel" data-panel="gebiet" aria-label="Gebiet wählen">
+      <div class="panel-inhalt">
+        <form id="suche" class="suche" role="search" autocomplete="off">
+          <label for="suche-eingabe" class="feld-titel">Adresse oder Ort</label>
+          <div class="suche-zeile">
+            <svg class="suche-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input id="suche-eingabe" type="search" placeholder="z. B. Kaiser-Wilhelm-Brücke Wilhelmshaven" required>
+            <button type="submit" class="knopf-leise">Suchen</button>
+          </div>
+          <ul id="suche-treffer" class="treffer" hidden></ul>
+        </form>
+
+        <div class="karte-info">
+          <div class="info-zeile">
+            <span class="info-label">Ausgewähltes Gebiet</span>
+            <span id="gebiet-groesse" class="info-wert mono">–</span>
+          </div>
+          <p class="info-tipp">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Ecken des Rechtecks ziehen, um die Größe zu ändern. Den roten Punkt in der Mitte ziehen, um es zu verschieben.
+          </p>
+        </div>
+
+        <div class="feld dachwahl">
+          <span class="feld-titel">Dachform der Gebäude</span>
+          <div class="umschalter" role="radiogroup" aria-label="Dachform">
+            <label><input type="radio" name="dachform" value="flach" checked><span>Flachdach</span></label>
+            <label><input type="radio" name="dachform" value="sattel"><span>Satteldach</span></label>
+          </div>
+          <p class="feld-hinweis">Satteldach: First entlang der langen Seite, 40° Neigung. Hallen über 22 m Breite, Garagen und Gebäude mit Innenhof bleiben flach.</p>
+        </div>
+
+        <div id="gebiet-inhalt" class="inhalt" hidden>
+          <div class="inhalt-titel">Inhalt der IFC-Datei</div>
+          <ul id="inhalt-liste" class="inhalt-liste"></ul>
+          <p class="feld-hinweis" id="inhalt-hinweis"></p>
+        </div>
+      </div>
+
+      <div class="panel-fuss">
+        <div class="pfeil-hin" aria-hidden="true">
+          Hier geht’s weiter
+          <svg viewBox="0 0 24 24"><path d="M12 4v15m0 0l-6-6m6 6l6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <button id="knopf-download" class="knopf-haupt knopf-gross" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          IFC-Datei herunterladen
+        </button>
+      </div>
+    </section>
+
+    <!-- ---------- Panel 2: Revit ---------- -->
+    <section class="panel" data-panel="revit" aria-label="Im CAD-Programm bearbeiten">
+      <div class="panel-inhalt">
+        <label class="feld">
+          <span class="feld-titel">Mit welchem CAD-Programm arbeitest du?</span>
+          <select id="cad-programm" class="auswahl">
+            <option value="revit">Autodesk Revit</option>
+            <option value="archicad">Graphisoft Archicad</option>
+            <option value="vectorworks">Vectorworks</option>
+            <option value="allplan">Allplan</option>
+            <option value="bricscad">BricsCAD BIM</option>
+            <option value="freecad">FreeCAD (kostenlos)</option>
+            <option value="blender">Blender mit Bonsai (kostenlos)</option>
+            <option value="anderes">Anderes Programm</option>
+          </select>
+        </label>
+
+        <!-- Arbeitsordner: IFC dort ablegen und die bearbeitete Datei automatisch zurückholen -->
+        <div id="ordner-karte" class="ordner-karte">
+          <div class="ordner-frage">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            <div>
+              <b>Darf Map2Model einen Ordner auf deinem PC benutzen?</b>
+              <span>Die IFC-Datei wird dort gespeichert. Speicherst du deine bearbeitete Datei als IFC in denselben Ordner, holt die App sie automatisch zurück – du musst nichts hochladen.</span>
+            </div>
+          </div>
+          <button type="button" id="knopf-ordner" class="knopf-zweit">Ja, Arbeitsordner wählen</button>
+          <div id="ordner-status" class="ordner-status" hidden></div>
+        </div>
+
+        <div class="gruppe">
+          <div class="gruppe-titel">So geht’s in <span id="cad-name">Revit</span></div>
+          <ol id="cad-anleitung" class="anleitung"></ol>
+        </div>
+
+        <div class="legende">
+          <span class="feld-titel">Namen für neue Bauteile (in jedem Programm gleich)</span>
+          <div class="chips"><code>Neubau_Gebäude_1</code><code>Neubau_Straße_1</code><code>Neubau_Brücke_1</code><code>Neubau_Grün_1</code></div>
+          <span class="feld-titel" style="margin-top:12px">Kennwörter in der Datei</span>
+          <div class="chips"><code>Gelände_</code><code>Gebäude_</code><code>Straße_</code><code>Wasser_</code><code>Grün_</code><code>Baum_</code><code>Brücke_</code><code>Bahn_</code></div>
+        </div>
+      </div>
+
+      <div class="panel-fuss">
+        <a href="#laser" class="knopf-zweit">
+          Weiter zur Laserdatei
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0l-6-6m6 6l-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- ---------- Panel 3: Laser ---------- -->
+    <section class="panel" data-panel="laser" aria-label="Laserdatei erzeugen">
+      <form id="laser-form" class="panel-form" novalidate>
+        <div class="panel-inhalt">
+
+          <div id="einfuegen-frage" class="einfuegen-frage" hidden>
+            <b>Willkommen zurück!</b>
+            <span id="einfuegen-text">Fertig mit dem Bearbeiten? Dann füge jetzt deine gespeicherte IFC-Datei ein.</span>
+            <button type="button" id="knopf-einfuegen" class="knopf-haupt knopf-gross">IFC-Datei einfügen</button>
+          </div>
+
+          <label id="ablage" class="ablage" for="datei-eingabe">
+            <input id="datei-eingabe" type="file" accept=".ifc" hidden>
+            <span class="ablage-plus" aria-hidden="true">+</span>
+            <span class="ablage-text"><b>Bearbeitete IFC-Datei</b><small>hineinziehen oder klicken</small></span>
+          </label>
+
+          <div class="gruppe">
+            <div class="gruppe-titel">Modell</div>
+            <label class="feld">
+              <span class="feld-titel">Maßstab</span>
+              <span class="massstab"><b>1 :</b><input id="massstab" type="number" min="1" step="1" placeholder="500" required></span>
+            </label>
+            <div class="feld">
+              <span class="feld-titel">Bauweise der Gebäude</span>
+              <div class="umschalter" role="radiogroup">
+                <label><input type="radio" name="bauweise" value="geschichtet" checked><span>Geschichtet</span></label>
+                <label><input type="radio" name="bauweise" value="volumen"><span>Volumen</span></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="gruppe">
+            <div class="gruppe-titel">Platte &amp; Material</div>
+            <div class="feld-reihe">
+              <label class="feld"><span class="feld-titel">Breite</span><span class="mit-einheit"><input id="platte-breite" type="number" min="50" max="990" value="990" required><em>mm</em></span></label>
+              <label class="feld"><span class="feld-titel">Höhe</span><span class="mit-einheit"><input id="platte-hoehe" type="number" min="50" max="590" value="590" required><em>mm</em></span></label>
+            </div>
+            <div class="feld-reihe">
+              <label class="feld">
+                <span class="feld-titel">Material</span>
+                <input id="material" type="text" list="material-liste" value="Finnpappe" required>
+                <datalist id="material-liste"><option value="Finnpappe"><option value="Graupappe"><option value="Karton"><option value="Holz"><option value="Acryl"></datalist>
+              </label>
+              <label class="feld"><span class="feld-titel">Stärke</span><span class="mit-einheit"><input id="staerke" type="number" min="0.3" max="10" step="0.1" value="1" required><em>mm</em></span></label>
+            </div>
+          </div>
+
+          <div class="gruppe">
+            <div class="gruppe-titel">Höhen der Grundplatte <small>in Schichten</small></div>
+            <div class="feld-reihe drei">
+              <label class="feld"><span class="feld-titel"><i class="punkt gruen"></i>Grün</span><input id="hoehe-gruen" type="number" step="1" value="1"></label>
+              <label class="feld"><span class="feld-titel"><i class="punkt grau"></i>Straßen</span><input id="hoehe-strasse" type="number" step="1" value="-1"></label>
+              <label class="feld"><span class="feld-titel"><i class="punkt blau"></i>Wasser</span><input id="hoehe-wasser" type="number" step="1" value="-2"></label>
+            </div>
+            <p class="feld-hinweis">Wird aus realistischen Höhen berechnet, sobald der Maßstab feststeht. Änderbar.</p>
+          </div>
+
+          <div id="laser-ergebnis" class="inhalt" hidden>
+            <div class="einkauf">
+              <span>Einkaufen</span>
+              <b id="einkauf-text">–</b>
+            </div>
+            <div class="inhalt-titel">Prüfung nach den Regeln der Jade HS</div>
+            <ul id="pruefung-liste" class="pruefliste"></ul>
+            <ul id="hinweis-liste" class="hinweisliste"></ul>
+            <button type="button" id="knopf-uebersicht" class="knopf-leise knopf-uebersicht">Bauplan / Übersicht öffnen</button>
+          </div>
+
+          <div class="gruppe">
+            <div class="gruppe-titel">Beschriftung</div>
+            <label class="feld">
+              <span class="feld-titel">Wird auf die Grundplatte graviert</span>
+              <textarea id="beschriftung" rows="2" placeholder="Städtebau WS 26/27 · Wilhelmshaven · M 1:500"></textarea>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel-fuss">
+          <p id="laser-meldung" class="meldung" role="status"></p>
+          <div class="pfeil-hin" aria-hidden="true">
+            Hier geht’s weiter
+            <svg viewBox="0 0 24 24"><path d="M12 4v15m0 0l-6-6m6 6l6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <button id="knopf-laser" type="submit" class="knopf-haupt knopf-gross">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            Laserdatei herunterladen
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <footer class="seite-fuss">
+      Kartendaten © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap-Mitwirkende</a> · Jade Hochschule · mit KI entwickelt
+    </footer>
+  </aside>
+
+  <!-- ================= Bühne (große Fläche rechts) ================= -->
+  <main class="buehne">
+    <div id="karte" class="buehne-flaeche" aria-label="Karte"></div>
+    <div id="karte-hinweis" class="karte-hinweis">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" fill="currentColor"/></svg>
+      Links eine Adresse suchen – dann erscheint das Rechteck für dein Gebiet.
+    </div>
+
+    <div id="vorschau" class="buehne-flaeche vorschau" hidden>
+      <div class="vorschau-kopf">
+        <span class="vorschau-titel">
+          <span id="blatt-nav" class="blatt-nav" hidden>
+            <button type="button" id="blatt-zurueck" class="knopf-leise" aria-label="Vorherige Platte">‹</button>
+            <button type="button" id="blatt-vor" class="knopf-leise" aria-label="Nächste Platte">›</button>
+          </span>
+          <span id="blatt-name">Laserbett · 1000 × 600 mm</span>
+        </span>
+        <span class="vorschau-legende">
+          <span><i class="linie gelb"></i>Rahmen</span>
+          <span><i class="linie rot"></i>Schneiden</span>
+          <span><i class="linie blau"></i>Ritzen</span>
+          <span><i class="linie schwarz"></i>Gravur</span>
+        </span>
+      </div>
+      <div class="vorschau-flaeche">
+        <svg id="vorschau-svg" viewBox="-20 -20 1040 640" preserveAspectRatio="xMidYMid meet" aria-label="Vorschau des Laserbetts"></svg>
+        <div id="vorschau-blatt" class="vorschau-blatt" hidden></div>
+      </div>
+      <div class="kennzahlen">
+        <div class="kennzahl"><span>Modellgröße</span><b id="kz-modell" class="mono">–</b></div>
+        <div class="kennzahl"><span>Grundplatte</span><b id="kz-teile" class="mono">–</b></div>
+        <div class="kennzahl"><span>Platten (geschätzt)</span><b id="kz-platten" class="mono">–</b></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<!-- Frage nach dem Download: im CAD-Programm öffnen? -->
+<dialog id="cad-dialog" class="dialog" aria-labelledby="cad-dialog-titel">
+  <div class="dialog-symbol" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M4 5h16v11H4zM8 20h8M12 16v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  </div>
+  <h2 id="cad-dialog-titel">Deine IFC-Datei ist fertig.</h2>
+  <p>Darf Map2Model sie in deinem CAD-Programm <b id="cad-dialog-name">Revit</b> öffnen?</p>
+  <div class="dialog-knoepfe">
+    <button type="button" id="cad-ja" class="knopf-haupt knopf-gross">Ja, im CAD-Programm öffnen</button>
+    <button type="button" id="cad-nein" class="knopf-zweit">Nein, nur speichern</button>
+  </div>
+  <details id="cad-einrichtung" class="dialog-einrichtung">
+    <summary>Öffnet sich dein CAD-Programm nicht von selbst? (einmalig einrichten)</summary>
+    <ol>
+      <li>Nach dem Klick auf „Ja“ erscheint oben rechts im Browser die Download-Liste.</li>
+      <li><b>Rechtsklick</b> auf die IFC-Datei → <b>„Dateien dieses Typs immer öffnen“</b>.</li>
+      <li>Fragt Windows nach einem Programm: dein CAD-Programm wählen und <b>„Immer“</b> anklicken.</li>
+      <li>Ab dann öffnet sich jede Map2Model-IFC direkt im CAD-Programm.</li>
+    </ol>
+    <p class="feld-hinweis">Ein Programm selbst starten darf eine Website nicht – diese Einstellung erlaubt es deinem Browser.</p>
+  </details>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<!-- Flächen verschmelzen/abziehen: polygon-clipping 0.15.7 -->
+<script src="https://cdn.jsdelivr.net/npm/polygon-clipping@0.15.7/dist/polygon-clipping.umd.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/geometrie.js"></script>
+<script src="js/bruecke-kw.js"></script>
+<script src="js/dach.js"></script>
+<script src="js/osm.js"></script>
+<script src="js/ifc-export.js"></script>
+<script src="js/suche.js"></script>
+<script src="js/karte.js"></script>
+<script src="js/ifc-import.js"></script>
+<script src="js/schrift.js"></script>
+<script src="js/laser.js"></script>
+<script src="js/laser-export.js"></script>
+<script src="js/uebersicht.js"></script>
+<script src="js/laser-ansicht.js"></script>
+<script src="js/startseite.js"></script>
+<script src="js/arbeitsordner.js"></script>
+</body>
+</html>
