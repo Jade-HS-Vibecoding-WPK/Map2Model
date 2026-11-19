@@ -85,7 +85,9 @@
     var strich = fuerVorschau ? "0.6" : "0.01";
     ["gelb", "blau", "schwarz", "rot"].forEach(function (k) {
       if (!gruppen[k].length) return;
-      teile.push('<path fill="none" stroke="' + FARBE[k].rgb + '" stroke-width="' + strich + '"' +
+      // Vorschau: Gelb etwas dunkler, sonst ist es auf Weiß kaum lesbar (die Datei bleibt exakt 255,255,0)
+      var farbe = fuerVorschau && k === "gelb" ? "#D4AE00" : FARBE[k].rgb;
+      teile.push('<path fill="none" stroke="' + farbe + '" stroke-width="' + strich + '"' +
         (fuerVorschau ? ' vector-effect="non-scaling-stroke"' : "") + ' d="' + gruppen[k].join(" ") + '"/>');
     });
     if (blatt.flaechen.length) {
@@ -102,24 +104,55 @@
     return kopf + hinter + teile.join("\n") + "\n</svg>\n";
   };
 
-  // ---------- Alle Platten nebeneinander in EINER Datei (zum Ansehen, nicht zum Lasern) ----------
-  // Raster mit 4 Spalten; über jeder Platte steht groß ihr Name.
-  M2M.alleZusammen = function (blaetter) {
-    var SP = Math.min(4, blaetter.length), LUECKE_X = 120, LUECKE_Y = 160, B = 1000, H = 600;
+  // ---------- ALLE Platten in EINER Datei (das ist die Laserdatei) ----------
+  // Raster mit 4 Spalten. Über jeder Platte steht ihr Name („PLATTE 01 · GEBÄUDE 1/5“),
+  // unten und links ist die Pappe bemaßt (z. B. 800 mm × 500 mm).
+  // Überschrift und Bemaßung sind SCHWARZ (gut lesbar). Sie liegen AUSSERHALB des gelben Laserbetts,
+  // landen also nicht auf der Pappe, wenn man Platte für Platte lasert.
+  // platte: { b, h, x, y } = Größe und Lage der Pappe im Laserbett (mm)
+  M2M.alleZusammen = function (blaetter, platte) {
+    platte = platte || { b: 800, h: 500, x: 5, y: 5 };
+    var SP = Math.min(4, blaetter.length), LUECKE_X = 160, LUECKE_Y = 200, B = 1000, H = 600;
+    var RAND_L = 90, RAND_U = 80;   // Platz links und unten für die Bemaßung
     var zeilen = Math.ceil(blaetter.length / SP);
-    var gesamtB = SP * B + (SP - 1) * LUECKE_X, gesamtH = zeilen * (H + LUECKE_Y);
+    var gesamtB = RAND_L + SP * B + (SP - 1) * LUECKE_X + 20, gesamtH = RAND_U + zeilen * (H + LUECKE_Y);
     var alle = { name: "Alle Platten", breite: gesamtB, hoehe: gesamtH, linien: [], flaechen: [] };
+    function gelb(pts, zu) { alle.linien.push({ farbe: "schwarz", pts: pts, zu: !!zu }); } // Überschrift + Maßketten: schwarz (Wunsch des Teams, gut lesbar)
+    function text(inhalt, x, y, h, drehen) {
+      M2M.textLinien(inhalt, 0, 0, h).forEach(function (pts) {
+        gelb(pts.map(function (p) { return drehen ? [x - p[1], y + p[0]] : [x + p[0], y + p[1]]; }));
+      });
+    }
+    function zahl(v) { return String(Math.round(v * 10) / 10).replace(".", ","); }
+
     blaetter.forEach(function (b, i) {
       var sp = i % SP, ze = Math.floor(i / SP);
-      var dx = sp * (B + LUECKE_X), dy = gesamtH - (ze + 1) * (H + LUECKE_Y);
+      var dx = RAND_L + sp * (B + LUECKE_X), dy = gesamtH - (ze + 1) * (H + LUECKE_Y) + RAND_U;
       b.linien.forEach(function (l) {
         alle.linien.push({ farbe: l.farbe, zu: l.zu, pts: l.pts.map(function (p) { return [p[0] + dx, p[1] + dy]; }) });
       });
       b.flaechen.forEach(function (q) { alle.flaechen.push([q[0] + dx, q[1] + dy, q[2], q[3]]); });
-      // Titel über der Platte
-      var titel = b.name.toUpperCase().replace(/ \(OPTIONAL ZUM LASERN\)/, "");
-      var th = Math.min(40, (B - 20) / (M2M.textBreite(titel, 1) || 1));
-      M2M.textRechtecke(titel, dx, dy + H + 30, th).forEach(function (q) { alle.flaechen.push(q); });
+
+      // Überschrift über der Platte – genau der Plattenname
+      var titel = M2M.gross(b.name);
+      var th = Math.min(30, (B - 10) / (M2M.textBreite(titel, 1) || 1));
+      text(titel, dx, dy + H + 28, th);
+
+      // Bemaßung der Pappe: unten die Breite, links die Höhe (Maßlinie, Hilfslinien, Schrägstriche)
+      var x0 = dx + platte.x, y0 = dy + platte.y, x1 = x0 + platte.b, y1 = y0 + platte.h;
+      var MH = 12, ABST = 34, UEB = 6, S = 5;
+      var ym = dy - ABST;                                  // Maßlinie unten
+      gelb([[x0, y0 - 8], [x0, ym - UEB]]); gelb([[x1, y0 - 8], [x1, ym - UEB]]);
+      gelb([[x0 - UEB, ym], [x1 + UEB, ym]]);
+      gelb([[x0 - S, ym - S], [x0 + S, ym + S]]); gelb([[x1 - S, ym - S], [x1 + S, ym + S]]);
+      var tb = zahl(platte.b) + " MM";
+      text(tb, (x0 + x1) / 2 - M2M.textBreite(tb, MH) / 2, ym + 3, MH);
+      var xm = dx - ABST;                                  // Maßlinie links
+      gelb([[x0 - 8, y0], [xm - UEB, y0]]); gelb([[x0 - 8, y1], [xm - UEB, y1]]);
+      gelb([[xm, y0 - UEB], [xm, y1 + UEB]]);
+      gelb([[xm - S, y0 - S], [xm + S, y0 + S]]); gelb([[xm - S, y1 - S], [xm + S, y1 + S]]);
+      var th2 = zahl(platte.h) + " MM";
+      text(th2, xm - 3, (y0 + y1) / 2 - M2M.textBreite(th2, MH) / 2, MH, true);
     });
     return alle;
   };
@@ -142,7 +175,7 @@
     var zeit = (jetzt.getHours() << 11) | (jetzt.getMinutes() << 5) | Math.floor(jetzt.getSeconds() / 2);
     var datum = ((jetzt.getFullYear() - 1980) << 9) | ((jetzt.getMonth() + 1) << 5) | jetzt.getDate();
     dateien.forEach(function (d) {
-      var name = enc.encode(d.name), daten = enc.encode(d.inhalt), crc = crc32(daten);
+      var name = enc.encode(d.name), daten = typeof d.inhalt === "string" ? enc.encode(d.inhalt) : d.inhalt, crc = crc32(daten);
       var kopf = new DataView(new ArrayBuffer(30));
       kopf.setUint32(0, 0x04034b50, true); kopf.setUint16(4, 20, true); kopf.setUint16(6, 0x0800, true);
       kopf.setUint16(8, 0, true); kopf.setUint16(10, zeit, true); kopf.setUint16(12, datum, true);

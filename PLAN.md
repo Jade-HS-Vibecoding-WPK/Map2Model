@@ -138,7 +138,7 @@ Bahngleise: Gravurlinie. Bäume: kleine Kreise (Gravur). Brücken: Fahrbahnplatt
 | Brücken | `B1`, `B2` … |
 | Teile der Grundplatte bei Aufteilung | `A`, `B` …, an der Fuge `A ⟷ B` |
 | Ebenen der Grundplatte | z. B. `A 0`, `A −1`, `A −2` |
-Mindest-Schrifthöhe ca. 2 mm. Text wird als gefüllte Kontur ausgegeben (keine Schriftart nötig).
+Mindest-Schrifthöhe 1,8 mm. Text wird als feine Einstrich-Linie ausgegeben (keine Schriftart nötig). Straßennamen werden schwarz auf den Straßenboden graviert.
 
 ### 6.6 Aufteilung auf mehrere Platten
 - Passt das Gebiet im eingegebenen Maßstab nicht auf eine Platte, zeigt die App das verständlich an.
@@ -280,6 +280,69 @@ Behoben:
 - **Übersicht / Aufteilungsplan**: alle Bauteile mit ihrer Gravur beschriftet; **kein Schnitt, nicht gelasert, nicht gezählt**.
 - **Einkaufszeile**: „X Platten à B × H mm · Material Stärke“ in der App (Kasten „Einkaufen“), unten rechts, im LIESMICH und im Bauplan.
 - **Schritt-2-Ablauf**: Nach dem Erzeugen fragt die App „Darf Map2Model sie in deinem CAD-Programm öffnen?“ → Ja → Download (mit einmaliger Browser-Einstellung „Dateien dieses Typs immer öffnen“ öffnet sie sich direkt im CAD-Programm) → Rückkehr zur Website wird erkannt → **Schritt 3 mit „Willkommen zurück! IFC-Datei einfügen“** (Dateiauswahl startet im Download- bzw. Arbeitsordner). Getestet mit simuliertem Verlassen/Zurückkommen.
+
+### CAD-Programm direkt öffnen: Map2Model-Öffner (Mi 18.11., Abend)
+- Wunsch: „Ja“ → Liste der CAD-Programme → Revit öffnet sich mit der IFC. Eine Website allein darf keine Programme starten.
+- Lösung: **Map2Model-Öffner** (`oeffner/`): `Installieren.cmd` (einmal doppelklicken, ohne Adminrechte) meldet für den eigenen Benutzer die Adresse `map2model://` an und kopiert `oeffner.ps1` nach `%LOCALAPPDATA%\Map2Model-Oeffner`. `Deinstallieren.cmd` entfernt alles.
+- Ablauf: „Ja, im CAD-Programm öffnen“ → **Liste** (Revit, Archicad, Vectorworks, Allplan, BricsCAD, FreeCAD, Standardprogramm) → IFC wird heruntergeladen → Website ruft `map2model://oeffnen?programm=revit&datei=…` auf → Öffner sucht die Datei im Download-Ordner und startet das Programm mit der Datei; Dateipfad zusätzlich in der Zwischenablage.
+- Sicherheit: nur `.ifc` aus dem eigenen Download-Ordner (≤ 5 Min. alt), nur Programme aus der festen Liste, Dateiname wird geprüft.
+- Ist der Öffner nicht installiert (kein Wechsel ins Programm nach ~9 s), zeigt die App eine Anleitung + Knopf „Map2Model-Öffner herunterladen“ (ZIP).
+- Getestet: Öffner im Probe-Modus findet `C:\Program Files\Autodesk\Revit 2026\Revit.exe`, lehnt falsche Dateinamen ab; Website-Liste und Hinweis im Browser. **Nicht getestet**: echtes Starten von Revit mit IFC (Revit evtl. ohne Datei → Datei → Öffnen → IFC → Strg + V).
+
+### Nur noch zwei Schritte (Mi 18.11., Abend)
+- Schritt 2 „Im CAD-Programm bearbeiten“ ist **entfernt**. Die App hat jetzt **1 Gebiet wählen** und **2 Laserdatei**.
+- Das Öffnen im CAD-Programm bleibt: nach „IFC-Datei herunterladen“ → Frage → **Liste der Programme** → Map2Model-Öffner startet das Programm. Rückkehr → Schritt 2 mit „IFC-Datei einfügen“.
+- Arbeitsordner-Funktion (File System Access) entfernt; Benennungsregeln als aufklappbarer **Tipp unter dem Upload-Feld**.
+- Startseite: Karten „1 Gebiet wählen · ↔ dazwischen dein CAD-Programm · 2 Laserdatei“.
+
+### Schritt 2 wieder da + Revit-Add-in (Mi 18.11., Abend)
+- Revit kann eine IFC nicht beim Start öffnen („Datei kann nicht geöffnet werden“) – sie muss in Revit über **Datei → Öffnen → IFC** geladen werden.
+- Lösung: **Map2Model-Add-in für Revit 2026** (`addin/App.cs`, gebaut mit .NET 10 SDK → `oeffner/Map2ModelRevit.dll` + `Map2ModelRevit.addin`). Der Öffner legt `%LOCALAPPDATA%\Map2Model-Oeffner\auftrag.txt` mit dem IFC-Pfad ab und startet Revit **ohne** Datei (oder holt ein offenes Revit nach vorne). Das Add-in prüft im Leerlauf (Idling) jede Sekunde den Auftrag und öffnet die IFC mit `Application.OpenIFCDocument` (= „IFC öffnen“), speichert als `<Name>.ifc.rvt` daneben und zeigt das Projekt an.
+- `Installieren.cmd` kopiert das Add-in nach `%APPDATA%\Autodesk\Revit\Addins\2026\`. Revit fragt beim ersten Start einmal „Immer laden“.
+- **Schritt 2 „Im CAD-Programm bearbeiten“ ist wieder da**: nach dem IFC-Download springt die App hierher; Programmliste + roter Button „In Revit öffnen“; Rückkehr → Schritt 3 „IFC-Datei einfügen“. Der Frage-Dialog ist entfallen.
+- .NET 10 SDK nur für den Benutzer installiert (`%LOCALAPPDATA%\Microsoft\dotnet-sdk`, offizielles Microsoft-Skript, ohne Adminrechte).
+- **Noch nicht in Revit getestet.**
+
+### Schrift, Spiegelung, Straßennamen (Mi 18.11., spät)
+- **Schrift nicht mehr spiegelverkehrt**: Nur die **Form** der Teile wird gespiegelt geschnitten, die Schrift bleibt normal. Umgedreht verbaut liegt die Gravur unten/innen und ist von unten **richtig herum** lesbar.
+- **Neue feine Einstrich-Schrift** mit runden Bögen (`js/schrift.js`, `M2M.textLinien`, `M2M.textBreite`, `M2M.gross` – „ß“ bleibt „ß“). Jede Linie wird einmal abgefahren, keine Schriftart, keine Füllung mehr. Ersetzt die alte 5×7-Pixelschrift überall (Teile, Bodenplatte, Beschriftung, Aufteilungsplan, „Alle Platten“). Mindesthöhe 1,8 mm (Großbuchstaben ≈ 1,5 mm).
+- **Straßennamen als Gravur** (schwarz) auf dem **Straßenboden** (Zwischenebene bzw. untere Platte – man sieht ihn durch die ausgeschnittene Straße). `osm.js` merkt sich die Mittellinien benannter Straßen, `karte.js` speichert sie in `M2M.strassen` + localStorage `m2m-strassen` (relativ zur linken unteren Gebietsecke). `laser.js/setzeStrassenNamen` setzt jeden Namen bis zu 3× entlang gerader Straßenstücke, immer lesbar gedreht, 3,5 → 1,8 mm je nach Straßenbreite, nie über eine Plattenfuge. Passt die IFC nicht zum zuletzt geladenen Gebiet → Hinweis.
+- Getestet (Wilhelmshaven, KW-Brücke, 1:500 Schichten + 1:1000 Volumen/Satteldach): alle Prüfungen grün, 4 Straßennamen graviert, DXF/SVG ok.
+
+### Schild mit Nordpfeil, keine Bäume (Mi 18.11., spät)
+- **Keine Bäume** mehr in der Laserdatei (vorher gravierte Kreise auf der Bodenplatte).
+- **Schild**: Die Beschriftung wird nicht mehr auf die Grundplatte graviert, sondern auf ein **eigenes kleines Pappstück** (rot ausgeschnitten, Schrift schwarz graviert, **nicht** gespiegelt). Liegt mit auf einer Gebäude-Platte („SCHILD“). Inhalt: jede Zeile aus dem Feld „Beschriftung“ + automatisch „M 1:…“ + **Nordpfeil** rechts daneben. Norden = obere Kante der Bodenplatte (IFC ist genordet) → Schild parallel zur Plattenkante aufkleben. Steht auch in der Bauanleitung.
+- **Schriftgrößen passen sich dem Maßstab an**: Schild-Schrift wächst mit der Modellgröße (3,6–9 mm erste Zeile, z. B. 1:500 ≈ 176 × 51 mm, 1:1000 ≈ 128 × 39 mm). Straßennamen starten bei ca. 2,4 m echter Höhe (1:200 → 8 mm, 1:500 → 4,8 mm, 1:1000 → 2,4 mm) und werden kleiner, bis sie in die Straße passen (min. 1,8 mm).
+
+### Poster A1 (Do 19.11.)
+- Poster nach der rot-weißen Werkstatt-Vorlage (Seite 1 von „Poster-Vorlage A0.pdf“), auf **A1 (594 × 841 mm)** umgesetzt: `WPK - KI/Poster/poster.html` → `Map2Model_Poster_A1.pdf` (gedruckt mit Edge im Hintergrund). Bilder in `Poster/bilder/` (echte Ansichten aus Map2Model). Namen/Matrikelnummern sind noch Platzhalter.
+- Dafür in der App ergänzt: **Standbild** der Startseite `?standbild=1` / `?standbild=offen` (&winkel=…), **Direktlink** `?ort=Breite,Länge,Name` springt ohne Suche zu einem Ort (z. B. für die Präsentation).
+
+### Jedes Teil bekommt eine Nummer (Do 19.11.)
+- Problem: Die Gravur wurde nur gesetzt, wenn sie ganz ins Teil passte (min. 1,8 mm) – schmale Wände, kleine Dächer und obere Schichten blieben leer.
+- Jetzt der Reihe nach: Name + Schicht → Kurzform („N1-3“, Dach „-D“) → **gedreht** um 90° (von unten nach oben lesbar, für hohe schmale Teile) → **kleinere Schrift 1,2 mm** → passt nichts: Nummer **direkt unter dem Teil** auf der Pappe (Hinweis in der App).
+- Dasselbe für die Umrisse auf der **Bodenplatte**: kleiner/gedreht im Umriss, sonst direkt daneben (max. 25 mm entfernt).
+- Test (Wilhelmshaven): 1:500 und 1:1000 Schichten → alle Teile und Umrisse nummeriert; 1:1000 Volumen → 15 Teile mit Nummer unter dem Teil, Rest im Teil.
+
+### Eine Laserdatei mit allen Platten (Do 19.11.)
+- Der Download enthält jetzt **eine** Laserdatei `Map2Model_Laser_<Name>_M1-<Maßstab>.dxf` mit **allen Platten** im Raster (4 nebeneinander), gleiche Ansicht als `.svg`, dazu `Bauplan_Uebersicht.html` und `LIESMICH.txt`. Keine Einzeldateien mehr.
+- Über jeder Platte steht ihr **Name als Überschrift** (wie bisher die Dateinamen, z. B. „PLATTE 01 · GEBÄUDE 1/5“, „PLATTE 07 · BODENPLATTE · TEIL A“).
+- Jede Platte ist **bemaßt**: unten die Breite, links die Höhe der Pappe (z. B. 800 MM / 500 MM) mit Maß- und Hilfslinien und Schrägstrichen.
+- Überschrift und Bemaßung sind **schwarz** (Wunsch des Teams, gut lesbar; vorher gelb). Sie liegen **außerhalb** des gelben Laserbetts → beim Lasern Platte für Platte nur den Inhalt im gelben Rahmen nehmen. (Gelbe Rahmen werden in der Vorschau etwas dunkler gezeigt, in der Datei exakt RGB 255,255,0.)
+- **Umschalter „Gebäude beschriften: Mit Beschriftung / Ohne“** (wie Geschichtet/Volumen). „Ohne“: keine Nummern auf Gebäude-, Grün- und Brückenteilen und keine Nummern in den Umrissen der Bodenplatte; Umrisse, Schild, Straßennamen und Plattenkennung bleiben. Hinweis in der App + LIESMICH.
+- Code: `M2M.alleZusammen(blaetter, platte)` in `js/laser-export.js`, Download in `js/laser-ansicht.js`.
+
+### Startmodell komplexer, Logo dunkelgrau (Mi 18.11., Abend)
+- **Startmodell** (`js/startseite.js`) deutlich größer und detaillierter: dunkler **Sockel** wie ein Ausstellungsmodell, 12 Baublöcke mit Bautypen (Blockrand mit unterschiedlichen Höhen + Eckturm, Zeilen mit Höhensprüngen, Hochpunkte auf Sockel, **Reihenhäuser mit Satteldach**, Park), **Hafenbecken** mit **Bogenbrücke** (Bögen + Hänger, angelehnt an die Kaiser-Wilhelm-Brücke), Baumreihen an Promenade und Straße, **Neubau rot** gestaffelt mit Dachterrassen und Hochpunkt. Gebäude wachsen als Welle von hinten links nach vorne rechts.
+- Kamera-Abstand wird einmal für alle Drehwinkel berechnet → das Modell passt immer ganz ins Bild (auch in der Explosionsansicht).
+- Logo und „Los geht’s“ sind immer sichtbar (Einblenden nur noch Zusatz – vorher blieben sie unsichtbar, wenn der Browser die Animation nicht abspielte).
+- **Grau (`#6e7378`, vorher Anthrazit)**: Logo-Grundplatte, Schriftzug „Map2Model“ (auch Seitenleiste) und der Sockel des 3D-Startmodells. Häuser im Logo hellgrau, Pin rot.
+
+### Neue Startseite + Logo (Mi 18.11., spät)
+- **Logo „Pin steckt im Modell“** (Wahl des Teams aus 12 Vorschlägen): roter Karten-Pin steckt in einer kleinen isometrischen Modellplatte mit zwei Häusern. Datei `img/logo.svg` – auf der Startseite, in der Seitenleiste und als Symbol im Browser-Tab.
+- **Startseite ganz reduziert**: nur Logo, bewegtes Modell, Button „Los geht’s“ (plus kleine Zeile Jade HS / © OpenStreetMap). Texte und Schritt-Karten sind weg.
+- **3D-Architekturmodell (ersetzt die SVG-Grafik, Wunsch: „nicht wie Lego“)**: `js/startseite.js` mit three.js r128 (cdnjs, nur auf der Startseite geladen). Weißes Finnpappe-Modell mit feinen Schichtkanten: Wasser, Straßenboden, 6 Baublöcke, Blockrand mit Innenhof + Eckturm, Zeilen mit Höhensprüngen, U-Block, Halle + Hochhaus, Park mit Kugelbäumen, Promenade, Brücke, **Neubau rot** (L-Form + Hochpunkt). Ablauf in Schleife: Teile fallen nacheinander herein → stehen → **Explosionsansicht** (Schichten schweben auseinander) → zusammen → nach oben weg. Kamera dreht eine Runde pro Minute, weicher Schatten. Läuft immer (auch bei Windows-„Animationen aus“) und startet, sobald die Startseite sichtbar wird (Fehler behoben: startete vorher manchmal gar nicht). Ohne WebGL → einfache SVG-Grafik `js/startseite-svg.js`.
+- (ersetzt) **Bewegtes Modell** (SVG): echte isometrische Quader (Wasserplatte, Straßenboden, Baublöcke, Park mit Bäumen, Brücke, Gebäude aus Schichten, Neubau rot). Die Teile fallen nacheinander von oben herein, Gebäude wachsen Schicht für Schicht; ~5 s stehen, dann auseinander und von vorn. Schwebt leicht. Bei „Bewegung reduzieren“ steht es still. Läuft nur, solange die Startseite sichtbar ist.
 
 ### Nächster Schritt
 1. Team: echte Revit-Export-IFC mit `Neubau_Gebäude_1` hochladen und Laserdatei erzeugen.

@@ -209,6 +209,17 @@
       M2M.letzteIfc = ifc;
       M2M.letzteIfcName = dateiname;
 
+      // Straßennamen für die Gravur merken – relativ zur linken unteren Ecke des Gebiets,
+      // auch über einen Neustart des Browsers hinaus (die IFC aus Revit kennt keine Namen mehr)
+      var r = modell.rechteck;
+      M2M.strassen = {
+        datei: dateiname, b: r.xmax - r.xmin, h: r.ymax - r.ymin,
+        linien: (modell.strassenNamen || []).map(function (s) {
+          return { name: s.name, pts: s.pts.map(function (p) { return [Math.round((p[0] - r.xmin) * 10) / 10, Math.round((p[1] - r.ymin) * 10) / 10]; }) };
+        }),
+      };
+      try { localStorage.setItem("m2m-strassen", JSON.stringify(M2M.strassen)); } catch (e) { /* ohne Speicher geht es auch */ }
+
       // Frage: „Darf ich sie in deinem CAD-Programm öffnen?“ (js/arbeitsordner.js)
       M2M.ifcFertig(dateiname, ifc);
     } catch (fehler) {

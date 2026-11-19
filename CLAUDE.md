@@ -23,8 +23,9 @@ Lies zuerst **PLAN.md**. Dort stehen Ziel, Ablauf, Must/Should/Could, alle fachl
 - Keine Daten aus Google Maps/Earth (Lizenz verbietet es).
 
 ## Gestaltung
-- **Aktuelles Design (ersetzt Grün/Dunkel, Mi 18.11.)**: weiß mit roten Akzenten (Rot `#c8102e`, angelehnt an die Jade HS). Nur die zwei Hauptaktionen „IFC-Datei herunterladen“ und „Laserdatei herunterladen“ sind große rote Buttons mit hüpfendem Pfeil. Schritt 2 heißt „Im CAD-Programm bearbeiten“ (Programm-Auswahl + Arbeitsordner).
-- (älter) **Startbildschirm** (dunkel): großer Titel „Von der Karte zum Lasermodell.“, isometrische Grafik eines geschichteten Modells, drei Schritt-Karten, grüner Button „Los geht’s“. Logo führt zurück zum Start.
+- **Aktuelles Design (ersetzt Grün/Dunkel, Mi 18.11.)**: weiß mit roten Akzenten (Rot `#c8102e`, angelehnt an die Jade HS). Nur die zwei Hauptaktionen „IFC-Datei herunterladen“ und „Laserdatei herunterladen“ sind große rote Buttons mit hüpfendem Pfeil. **Nur zwei Schritte: 1 Gebiet wählen · 2 Laserdatei** (kein eigener CAD-Schritt mehr, Wunsch des Teams). Nach dem IFC-Download: Frage → Liste der CAD-Programme → Map2Model-Öffner (`oeffner/`) startet das Programm; zurück auf der Website → Schritt 2 „IFC-Datei einfügen“.
+- **Logo**: „Pin steckt im Modell“ (`img/logo.svg`), überall dasselbe. **Startseite**: nur Logo, bewegtes Modell, die sich zusammensetzt, und „Los geht’s“ – nichts weiter dazuschreiben.
+- (älter, ersetzt) **Startbildschirm** (dunkel): großer Titel „Von der Karte zum Lasermodell.“, isometrische Grafik eines geschichteten Modells, drei Schritt-Karten, grüner Button „Los geht’s“. Logo führt zurück zum Start.
 - Stil der App: **Werkzeug-App** (wie Figma/CAD): **dunkle Seitenleiste** links (Logo, Schritte 1 Gebiet · 2 Revit · 3 Laserdatei, Felder des Schritts, Hauptbutton unten), große helle Fläche rechts (Karte bei 1+2, Laserbett-Vorschau bei 3). Schrift Inter, Maße in JetBrains Mono.
 - Akzentfarbe **Grün `#15803d`** – **eigene gestalterische Entscheidung:** Jede Hauptaktion ist ein grüner Button („Los geht’s“, „Download“, „Weiter“, „Laserdatei erzeugen“). Pro Ansicht genau **ein** Hauptbutton, alles andere leiser.
 - Karte: **farbige** OpenStreetMap-Karte; das Gebiet hat einen grünen Rand mit weißem Saum, damit es gut sichtbar bleibt.
@@ -38,7 +39,7 @@ Lies zuerst **PLAN.md**. Dort stehen Ziel, Ablauf, Must/Should/Could, alle fachl
 - Alles in der IFC ist eine **eigene Extrusion** (Allgemeines Modell), Name beginnt mit Kennwort: `Gelände_` (Bodenplatte), `Gebäude_`, `Straße_`, `Wasser_`, `Grün_`, `Baum_`, `Brücke_`, `Bahn_`, Neues mit `Neubau_`. In Revit muss sich alles in einzelne Elemente auflösen lassen.
 - Laserdatei nach **Jade-HS-Regeln**: RGB Rot = schneiden, Blau = ritzen, Gelb = Rahmen, Schwarz (echt 0,0,0) = Gravur/Fläche/Schrift; Linienart 0,00 mm; gelber Rahmen 1000 × 600 mm; 5 mm Abstand; keine doppelten Linien; Schrift als Kontur; DXF + SVG.
 - Maßstab ist ein Pflichtfeld „1 : ___“.
-- Gravuren sind **fein** (blau geritzte Einzellinien-Schrift, 1,5–2,5 mm) und liegen auf der **Rückseite** (Teile gespiegelt geschnitten) – am fertigen Modell unsichtbar. Übersichtspläne werden nie gelasert oder gezählt.
+- Gravuren sind **fein** (Einstrich-Schrift mit runden Bögen, blau geritzt, 1,8–2,5 mm) und liegen auf der **Rückseite**: nur die **Form** der Teile wird gespiegelt, **die Schrift nie** (sonst steht sie von unten falsch herum). Straßennamen werden schwarz auf den Straßenboden graviert. Übersichtspläne werden nie gelasert oder gezählt.
 - Jedes Teil trägt eine Gravur, die auch auf der Grundplatte steht: **der eigene Name aus Revit** plus Schicht (z. B. `NEUBAU GEBÄUDE 1-3`); passt er nicht, für dieses Bauteil einheitlich die Kurzform (`N1-3`). Zu jeder Laserdatei gehört der Bauplan `00_Uebersicht.html`. Teile eines Bauteils liegen zusammen auf einer Platte.
 - Höhenebenen: realistische Höhe → Maßstab → ganze Schichten, mindestens 1 Schicht (Grün +, Straße −, Wasser tiefer).
 - Zu großes Gebiet → Grundplatte gerade auf mehrere Platten teilen, mit `A`, `B` und `A ⟷ B` an der Fuge.

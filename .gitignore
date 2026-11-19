@@ -1,0 +1,6 @@
+addin/bin/
+addin/obj/
+*.user
+.vs/
+Thumbs.db
+desktop.ini

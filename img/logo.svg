@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Map2Model-Logo: ein Pin steckt im Modell (Grundplatte grau) -->
+  <path d="M4 44l28-14 28 14-28 14z" fill="#6e7378"/>
+  <path d="M4 44v3l28 14v-3z" fill="#585c61"/>
+  <path d="M60 44v3L32 61v-3z" fill="#4b4f53"/>
+  <path d="M10 41l6-3 6 3-6 3z" fill="#f4f4f2"/>
+  <path d="M10 41v-7l6 3v7z" fill="#d4d5d3"/>
+  <path d="M22 41v-7l-6 3v7z" fill="#b9bbb9"/>
+  <path d="M10 34l6-3 6 3-6 3z" fill="#f4f4f2"/>
+  <path d="M42 47v-5l6 3v5z" fill="#d4d5d3"/>
+  <path d="M54 47v-5l-6 3v5z" fill="#b9bbb9"/>
+  <path d="M42 42l6-3 6 3-6 3z" fill="#f4f4f2"/>
+  <ellipse cx="33" cy="44.5" rx="5" ry="2" fill="#000" opacity=".3"/>
+  <path d="M32 6c-7 0-12.6 5.3-12.6 12C19.4 27 32 44 32 44s12.6-17 12.6-26C44.6 11.3 39 6 32 6z" fill="#c8102e"/>
+  <circle cx="32" cy="18" r="4.6" fill="#fff"/>
+</svg>

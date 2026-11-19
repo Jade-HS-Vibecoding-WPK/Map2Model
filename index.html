@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Map2Model</title>
+  <link rel="icon" type="image/svg+xml" href="img/logo.svg">
   <meta name="description" content="Von der Karte zum Lasermodell: Gebiet wählen, in Revit bearbeiten, Laserdatei erzeugen.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,47 +18,23 @@
 <body>
 
 <!-- ================= Startbildschirm ================= -->
-<section id="start" class="start" aria-labelledby="start-titel" hidden>
-  <header class="start-kopf">
-    <span class="logo">
-      <span class="logo-zeichen" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z" fill="currentColor" opacity=".35"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+<section id="start" class="start" aria-label="Map2Model – Startseite" hidden>
+  <div class="start-mitte">
+    <h1 class="start-logo">
+      <span class="logo-zeichen logo-gross" aria-hidden="true">
+        <img src="img/logo.svg" alt="">
       </span>
       <span class="logo-name">Map2Model</span>
-    </span>
-    <span class="start-kopf-rechts">Jade Hochschule · Vibecoding KI-Werkstatt</span>
-  </header>
-
-  <div class="start-haupt">
-    <div class="start-text">
-      <p class="start-zeile">Städtebau-Modelle per Laser</p>
-      <h1 id="start-titel">Von der Karte<br>zum <span>Lasermodell</span>.</h1>
-      <p class="start-einleitung">Adresse eingeben, Gebiet wählen, im CAD-Programm Abriss und Neubau planen – und eine fertige Laserdatei nach den Regeln der Jade Hochschule herunterladen. Mit nummerierten Teilen, damit jedes Stück seinen Platz findet.</p>
-      <a href="#gebiet" class="knopf-haupt start-knopf">
-        Los geht’s
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0l-6-6m6 6l-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <p class="start-klein">Läuft direkt im Browser · für jede Adresse · Kartendaten © OpenStreetMap-Mitwirkende</p>
-    </div>
+    </h1>
     <div class="start-grafik" aria-hidden="true">
-      <svg id="start-grafik" viewBox="0 0 560 420"></svg>
+      <svg id="start-grafik" viewBox="0 0 640 440"></svg>
     </div>
+    <a href="#gebiet" class="knopf-haupt start-knopf">
+      Los geht’s
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0l-6-6m6 6l-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
   </div>
-
-  <ol class="start-schritte">
-    <li>
-      <span class="start-nr">1</span>
-      <div><b>Gebiet wählen</b><span>Adresse suchen, Rechteck aufziehen, IFC-Datei für Revit herunterladen.</span></div>
-    </li>
-    <li>
-      <span class="start-nr">2</span>
-      <div><b>Im CAD-Programm bearbeiten</b><span>Revit, Archicad, Vectorworks … – Abriss löschen, Neubauten einsetzen, als IFC speichern.</span></div>
-    </li>
-    <li>
-      <span class="start-nr">3</span>
-      <div><b>Laserdatei erzeugen</b><span>Platte, Material und Maßstab wählen – DXF und SVG mit nummerierten Teilen.</span></div>
-    </li>
-  </ol>
+  <p class="start-fuss">Jade Hochschule · Kartendaten © OpenStreetMap-Mitwirkende</p>
 </section>
 
 <div class="app">
@@ -68,7 +45,7 @@
     <header class="seite-kopf">
       <a class="logo" href="#start" title="Zur Startseite">
         <span class="logo-zeichen" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z" fill="currentColor" opacity=".35"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+          <img src="img/logo.svg" alt="">
         </span>
         <span>
           <span class="logo-name">Map2Model</span>
@@ -84,11 +61,11 @@
       </a>
       <a href="#revit" class="schritt" data-ansicht="revit">
         <span class="nr">2</span>
-        <span class="schritt-text"><b>Im CAD-Programm bearbeiten</b><small>Abriss löschen, Neubau einsetzen</small></span>
+        <span class="schritt-text"><b>Im CAD-Programm bearbeiten</b><small>Revit & Co. öffnen sich mit der IFC</small></span>
       </a>
       <a href="#laser" class="schritt" data-ansicht="laser">
         <span class="nr">3</span>
-        <span class="schritt-text"><b>Laserdatei</b><small>Hochladen, einstellen, erzeugen</small></span>
+        <span class="schritt-text"><b>Laserdatei</b><small>IFC aus dem CAD-Programm einfügen, Laserdatei erzeugen</small></span>
       </a>
     </nav>
 
@@ -144,52 +121,37 @@
       </div>
     </section>
 
-    <!-- ---------- Panel 2: Revit ---------- -->
+    <!-- ---------- Panel 2: Im CAD-Programm bearbeiten ---------- -->
     <section class="panel" data-panel="revit" aria-label="Im CAD-Programm bearbeiten">
       <div class="panel-inhalt">
-        <label class="feld">
-          <span class="feld-titel">Mit welchem CAD-Programm arbeitest du?</span>
-          <select id="cad-programm" class="auswahl">
-            <option value="revit">Autodesk Revit</option>
-            <option value="archicad">Graphisoft Archicad</option>
-            <option value="vectorworks">Vectorworks</option>
-            <option value="allplan">Allplan</option>
-            <option value="bricscad">BricsCAD BIM</option>
-            <option value="freecad">FreeCAD (kostenlos)</option>
-            <option value="blender">Blender mit Bonsai (kostenlos)</option>
-            <option value="anderes">Anderes Programm</option>
-          </select>
-        </label>
-
-        <!-- Arbeitsordner: IFC dort ablegen und die bearbeitete Datei automatisch zurückholen -->
-        <div id="ordner-karte" class="ordner-karte">
-          <div class="ordner-frage">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-            <div>
-              <b>Darf Map2Model einen Ordner auf deinem PC benutzen?</b>
-              <span>Die IFC-Datei wird dort gespeichert. Speicherst du deine bearbeitete Datei als IFC in denselben Ordner, holt die App sie automatisch zurück – du musst nichts hochladen.</span>
-            </div>
-          </div>
-          <button type="button" id="knopf-ordner" class="knopf-zweit">Ja, Arbeitsordner wählen</button>
-          <div id="ordner-status" class="ordner-status" hidden></div>
+        <div id="cad-datei" class="cad-datei leer">
+          <span class="feld-titel">Deine IFC-Datei</span>
+          <b id="cad-datei-name">Noch keine – zuerst in Schritt 1 herunterladen</b>
         </div>
 
-        <div class="gruppe">
-          <div class="gruppe-titel">So geht’s in <span id="cad-name">Revit</span></div>
-          <ol id="cad-anleitung" class="anleitung"></ol>
-        </div>
+        <span class="feld-titel cad-titel">Mit welchem Programm öffnen?</span>
+        <div id="cad-liste" class="cad-liste"></div>
 
-        <div class="legende">
-          <span class="feld-titel">Namen für neue Bauteile (in jedem Programm gleich)</span>
+        <div id="cad-info" class="cad-info"></div>
+
+        <details class="tipp">
+          <summary>Tipp: So benennst du Neubauten</summary>
+          <p>Neue Bauteile als Körper/Extrusion zeichnen und den Namen mit <code>Neubau_</code> + Kennwort beginnen – dann landen sie auf eigenen Platten:</p>
           <div class="chips"><code>Neubau_Gebäude_1</code><code>Neubau_Straße_1</code><code>Neubau_Brücke_1</code><code>Neubau_Grün_1</code></div>
-          <span class="feld-titel" style="margin-top:12px">Kennwörter in der Datei</span>
-          <div class="chips"><code>Gelände_</code><code>Gebäude_</code><code>Straße_</code><code>Wasser_</code><code>Grün_</code><code>Baum_</code><code>Brücke_</code><code>Bahn_</code></div>
-        </div>
+          <p>Abriss: Gebäude löschen. Die Lage des Modells nicht verschieben. Zum Schluss als <b>IFC</b> speichern bzw. exportieren – danach einfach hierher zurückkommen.</p>
+        </details>
       </div>
 
       <div class="panel-fuss">
-        <a href="#laser" class="knopf-zweit">
-          Weiter zur Laserdatei
+        <div class="pfeil-hin" aria-hidden="true">
+          Hier geht’s weiter
+          <svg viewBox="0 0 24 24"><path d="M12 4v15m0 0l-6-6m6 6l6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <button type="button" id="knopf-cad" class="knopf-haupt knopf-gross" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H4zM8 20h8M12 16v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+          <span id="knopf-cad-text">In Revit öffnen</span>
+        </button>
+        <a href="#laser" class="knopf-zweit">Weiter zur Laserdatei
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0l-6-6m6 6l-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
       </div>
@@ -212,6 +174,13 @@
             <span class="ablage-text"><b>Bearbeitete IFC-Datei</b><small>hineinziehen oder klicken</small></span>
           </label>
 
+          <details class="tipp">
+            <summary>Tipp: So benennst du Neubauten im CAD-Programm</summary>
+            <p>Neue Bauteile als Körper/Extrusion zeichnen und den Namen mit <code>Neubau_</code> + Kennwort beginnen – dann landen sie auf eigenen Platten:</p>
+            <div class="chips"><code>Neubau_Gebäude_1</code><code>Neubau_Straße_1</code><code>Neubau_Brücke_1</code><code>Neubau_Grün_1</code></div>
+            <p>Abriss: Gebäude einfach löschen. Die Lage des Modells (Projektbasispunkt) nicht verschieben. Zum Schluss als <b>IFC</b> speichern bzw. exportieren.</p>
+          </details>
+
           <div class="gruppe">
             <div class="gruppe-titel">Modell</div>
             <label class="feld">
@@ -223,6 +192,13 @@
               <div class="umschalter" role="radiogroup">
                 <label><input type="radio" name="bauweise" value="geschichtet" checked><span>Geschichtet</span></label>
                 <label><input type="radio" name="bauweise" value="volumen"><span>Volumen</span></label>
+              </div>
+            </div>
+            <div class="feld">
+              <span class="feld-titel">Gebäude beschriften (Nummern auf Teilen und Bodenplatte)</span>
+              <div class="umschalter" role="radiogroup">
+                <label><input type="radio" name="beschriften" value="ja" checked><span>Mit Beschriftung</span></label>
+                <label><input type="radio" name="beschriften" value="nein"><span>Ohne</span></label>
               </div>
             </div>
           </div>
@@ -267,8 +243,8 @@
           <div class="gruppe">
             <div class="gruppe-titel">Beschriftung</div>
             <label class="feld">
-              <span class="feld-titel">Wird auf die Grundplatte graviert</span>
-              <textarea id="beschriftung" rows="2" placeholder="Städtebau WS 26/27 · Wilhelmshaven · M 1:500"></textarea>
+              <span class="feld-titel">Kommt auf ein eigenes kleines Schild mit Nordpfeil und Maßstab (zum Aufkleben). Jede Zeile = eine Zeile.</span>
+              <textarea id="beschriftung" rows="2" placeholder="Max Muster · Anna Beispiel&#10;Städtebau WS 26/27&#10;Wilhelmshaven"></textarea>
             </label>
           </div>
         </div>
@@ -331,28 +307,27 @@
 
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-<!-- Frage nach dem Download: im CAD-Programm öffnen? -->
-<dialog id="cad-dialog" class="dialog" aria-labelledby="cad-dialog-titel">
-  <div class="dialog-symbol" aria-hidden="true">
-    <svg viewBox="0 0 24 24"><path d="M4 5h16v11H4zM8 20h8M12 16v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+<!-- Falls sich das CAD-Programm nicht öffnet: Map2Model-Öffner einmalig installieren -->
+<div id="oeffnen-hinweis" class="oeffnen-hinweis" role="dialog" aria-labelledby="oeffnen-titel" hidden>
+  <div class="oeffnen-karte">
+    <b id="oeffnen-titel"><span id="oeffnen-cad">Revit</span> hat sich nicht geöffnet?</b>
+    <p>Damit Map2Model dein CAD-Programm starten darf, braucht dein PC <b>einmalig</b> den kleinen <b>Map2Model-Öffner</b>. Eine Website allein darf keine Programme starten.</p>
+    <div class="oeffnen-einmalig">
+      <b>So geht’s (einmalig, ca. 1 Minute):</b>
+      <ol>
+        <li><b>Öffner herunterladen</b> (Knopf unten) und die ZIP-Datei <b>entpacken</b>.</li>
+        <li><b>Installieren.cmd</b> doppelklicken. Warnt Windows: „Weitere Informationen“ → „Trotzdem ausführen“.</li>
+        <li>Zurück hierher und nochmal auf den roten Button <b>„In … öffnen“</b> klicken. Der Browser fragt einmalig, ob er den Öffner starten darf → <b>Öffnen</b> (Haken bei „immer erlauben“).</li>
+      </ol>
+      <p class="feld-hinweis">Deine Datei <b id="oeffnen-datei">–</b> liegt schon im Download-Ordner – du kannst sie auch dort doppelklicken.</p>
+    </div>
+    <div class="oeffnen-knoepfe">
+      <button type="button" id="oeffner-laden" class="knopf-haupt">Map2Model-Öffner herunterladen</button>
+      <button type="button" id="oeffnen-zu" class="knopf-leise">Schließen</button>
+    </div>
   </div>
-  <h2 id="cad-dialog-titel">Deine IFC-Datei ist fertig.</h2>
-  <p>Darf Map2Model sie in deinem CAD-Programm <b id="cad-dialog-name">Revit</b> öffnen?</p>
-  <div class="dialog-knoepfe">
-    <button type="button" id="cad-ja" class="knopf-haupt knopf-gross">Ja, im CAD-Programm öffnen</button>
-    <button type="button" id="cad-nein" class="knopf-zweit">Nein, nur speichern</button>
-  </div>
-  <details id="cad-einrichtung" class="dialog-einrichtung">
-    <summary>Öffnet sich dein CAD-Programm nicht von selbst? (einmalig einrichten)</summary>
-    <ol>
-      <li>Nach dem Klick auf „Ja“ erscheint oben rechts im Browser die Download-Liste.</li>
-      <li><b>Rechtsklick</b> auf die IFC-Datei → <b>„Dateien dieses Typs immer öffnen“</b>.</li>
-      <li>Fragt Windows nach einem Programm: dein CAD-Programm wählen und <b>„Immer“</b> anklicken.</li>
-      <li>Ab dann öffnet sich jede Map2Model-IFC direkt im CAD-Programm.</li>
-    </ol>
-    <p class="feld-hinweis">Ein Programm selbst starten darf eine Website nicht – diese Einstellung erlaubt es deinem Browser.</p>
-  </details>
-</dialog>
+</div>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <!-- Flächen verschmelzen/abziehen: polygon-clipping 0.15.7 -->
@@ -371,6 +346,7 @@
 <script src="js/laser-export.js"></script>
 <script src="js/uebersicht.js"></script>
 <script src="js/laser-ansicht.js"></script>
+<script src="js/startseite-svg.js"></script>
 <script src="js/startseite.js"></script>
 <script src="js/arbeitsordner.js"></script>
 </body>

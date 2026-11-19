@@ -198,6 +198,7 @@
     var kuestenWege = [];
     var elemente = [];
     var kwPunkte = [];
+    var strassenNamen = []; // { name, pts: [[x, y], …] } in Metern
 
     (daten.elements || []).forEach(function (el) {
       var tags = el.tags || {};
@@ -236,6 +237,8 @@
         // geschlossene Fußgängerflächen o. ä. als Fläche behandeln
         if (geschlossen && tags.area === "yes") return;
         G.schneideLinie(zuMeter(el.geometry), r).forEach(function (teil) {
+          // Straßennamen merken (Mittellinie) – sie werden später auf die Bodenplatte graviert
+          if (kat === "Straße" && tags.name && teil.length >= 2) strassenNamen.push({ name: tags.name, pts: teil });
           G.linieZuFlaechen(teil, breite).forEach(function (f) {
             flaechen.push({ kat: kat === "Brücke-Linie" ? "Brücke" : kat, aussen: f, innen: [], tags: tags, osm: osm });
           });
@@ -394,6 +397,6 @@
       delete e._sp;
     });
 
-    return { rechteck: r, projektion: proj, elemente: elemente, anzahl: zaehler, uebersprungen: uebersprungen };
+    return { rechteck: r, projektion: proj, elemente: elemente, anzahl: zaehler, uebersprungen: uebersprungen, strassenNamen: strassenNamen };
   };
 })();

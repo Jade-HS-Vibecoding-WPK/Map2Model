@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Map2Model-Add-in: öffnet IFC-Dateien von der Map2Model-Website automatisch in Revit -->
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>Map2Model</Name>
+    <Assembly>Map2Model\Map2ModelRevit.dll</Assembly>
+    <AddInId>6F1D2C3B-8A47-4E5B-9C21-3D4E5F6A7B80</AddInId>
+    <FullClassName>Map2ModelRevit.App</FullClassName>
+    <VendorId>M2M</VendorId>
+    <VendorDescription>Map2Model · Jade Hochschule</VendorDescription>
+  </AddIn>
+</RevitAddIns>

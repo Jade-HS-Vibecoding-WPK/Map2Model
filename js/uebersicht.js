@@ -101,7 +101,7 @@
         inhalt = "Verkleinerter Plan des ganzen Modells: wo die Teile A, B … liegen und welche Platten-Nummern dazugehören. Kann als Plakette mitgelasert werden.";
       } else if (bl.gruppe === "Grundplatte") {
         inhalt = /Bodenplatte/.test(bl.name) && !/darunter/.test(bl.name)
-          ? "Straßen und Wasser ausgeschnitten; Umrisse der Gebäude, Grünflächen und Brücken blau angeritzt mit Gravur; Bäume, Gleise, Beschriftung"
+          ? "Straßen und Wasser ausgeschnitten; Umrisse der Gebäude, Grünflächen und Brücken blau angeritzt mit Gravur; Gleise"
           : /Wasser/.test(bl.name) ? "Durchgehende Platte – Wasserspiegel (ganz unten)"
           : /Straßenboden \(unten\)/.test(bl.name) ? "Durchgehende Platte – Straßenboden (ganz unten)"
           : "Wasser ausgeschnitten – Straßen liegen hier auf";
@@ -143,6 +143,8 @@
       : "<b>Gebäude</b>: Schichten in Zahlenfolge stapeln – „-1“ unten, die höchste Zahl oben. Position: blau angeritzter Umriss mit gleicher Gravur auf der Bodenplatte.");
     if (bauteile.some(function (b) { return b.neubau; })) schritte.push("<b>Neubauten</b> (grün markiert) liegen auf eigenen Platten – ideal in anderem Material.");
     if (bauteile.some(function (b) { return b.kategorie === "Brücke"; })) schritte.push("<b>Brücken</b>: Fahrbahn über das ausgeschnittene Wasser legen.");
+    var schildPlatte = erg.blaetter.filter(function (b) { return b.inhalt && b.inhalt.some(function (it) { return it.schicht === "Schild"; }); })[0];
+    if (schildPlatte) schritte.push("<b>Schild</b> (Platte " + String(schildPlatte.nummer).padStart(2, "0") + ", „SCHILD“) mit Beschriftung, Maßstab und Nordpfeil auf den Rand der Bodenplatte kleben – <b>parallel zur Plattenkante</b>, dann zeigt der Pfeil nach Norden (Norden = obere Kante der Bodenplatte).");
 
     var datum = new Date().toLocaleDateString("de-DE");
     return "<!doctype html><html lang='de'><head><meta charset='utf-8'><title>Map2Model – Bauplan</title>" +
@@ -164,7 +166,7 @@
       esc(cfg.plattenB) + " × " + esc(cfg.plattenH) + " mm · " + (cfg.bauweise === "volumen" ? "Volumen" : "Geschichtet") + " · " + datum + "</div>" +
       "<div class='zahlen'>" +
       "<div class='zahl'><span>Einkaufen</span><b>" + erg.finnpappen + " Platten à " + esc(cfg.plattenB) + " × " + esc(cfg.plattenH) + " mm</b></div>" +
-      "<div class='zahl'><span>Dateien</span><b>" + erg.blaetter.length + "</b></div>" +
+      "<div class='zahl'><span>Platten in der Laserdatei</span><b>" + erg.blaetter.length + "</b></div>" +
       "<div class='zahl'><span>Modellgröße</span><b>" + zahl(erg.modellMM[0]) + " × " + zahl(erg.modellMM[1]) + " mm</b></div>" +
       "<div class='zahl'><span>Grundplatte</span><b>" + erg.teile.grundplatte + " Teil" + (erg.teile.grundplatte > 1 ? "e" : "") + " · " + erg.teile.ebenen + " Ebenen</b></div>" +
       "<div class='zahl'><span>Bauteile</span><b>" + bauteile.length + "</b></div>" +

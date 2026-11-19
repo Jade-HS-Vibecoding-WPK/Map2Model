@@ -85,4 +85,14 @@
   eingabe.addEventListener("keydown", function (e) {
     if (e.key === "Escape") trefferAusblenden();
   });
+
+  // Direktlink: ?ort=53.5128,8.1430,Kaiser-Wilhelm-Brücke → springt ohne Suche dorthin (z. B. für Präsentation/Poster)
+  var ort = new URLSearchParams(location.search).get("ort");
+  if (ort) window.addEventListener("load", function () {
+    var t = ort.split(","), lat = parseFloat(t[0]), lon = parseFloat(t[1]);
+    if (!isFinite(lat) || !isFinite(lon) || !M2M.springeZu) return;
+    M2M.ortName = (t.slice(2).join(",") || "Gebiet").trim();
+    eingabe.value = M2M.ortName;
+    M2M.springeZu(lat, lon);
+  });
 })();

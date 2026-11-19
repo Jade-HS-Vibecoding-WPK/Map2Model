@@ -172,11 +172,16 @@
       plattenH: parseFloat($("platte-hoehe").value),
       material: $("material").value.trim(),
       bauweise: form.querySelector("input[name=bauweise]:checked").value,
+      beschriften: (form.querySelector("input[name=beschriften]:checked") || {}).value !== "nein",
       hGruen: Math.abs(parseInt($("hoehe-gruen").value, 10) || 0),
       hStrasse: Math.abs(parseInt($("hoehe-strasse").value, 10) || 1),
       hWasser: Math.abs(parseInt($("hoehe-wasser").value, 10) || 2),
-      beschriftung: $("beschriftung").value.trim().replace(/\s+/g, " "),
+      beschriftung: $("beschriftung").value.trim(), // Zeilenumbrüche bleiben: jede Zeile = eine Zeile auf dem Schild
+      strassen: M2M.strassen || null,
     };
+    if (!cfg.strassen) {
+      try { cfg.strassen = JSON.parse(localStorage.getItem("m2m-strassen") || "null"); } catch (e) { cfg.strassen = null; }
+    }
     meldung.textContent = "";
     try {
       laedt("Lese IFC-Datei…"); await warte();
@@ -189,7 +194,7 @@
       zeigeErgebnis(erg);
       laedt("Packe die Dateien…"); await warte();
       ladeHerunter(erg, cfg);
-      M2M.melde("Fertig: " + erg.blaetter.length + " Dateien heruntergeladen – " + erg.finnpappen + " Pappen werden gebraucht.");
+      M2M.melde("Fertig: eine Laserdatei mit " + erg.blaetter.length + " Platten heruntergeladen – " + erg.finnpappen + " Pappen werden gebraucht.");
     } catch (e) {
       console.error(e);
       meldung.textContent = "Die Laserdatei konnte nicht erzeugt werden: " + (e && e.message ? e.message : e);
@@ -201,23 +206,26 @@
 
   function ladeHerunter(erg, cfg) {
     var basis = (M2M.datei.name || "Modell").replace(/\.ifc$/i, "").replace(/[^\wäöüÄÖÜß-]+/g, "_").slice(0, 40);
-    var dateien = [];
-    erg.blaetter.forEach(function (b) {
-      var name = b.name.replace(/[·()]/g, "").replace(/×/g, "x").replace(/\//g, "-").replace(/−/g, "-")
-        .trim().replace(/\s+/g, "_").replace(/_+/g, "_");
-      dateien.push({ name: "DXF/" + name + ".dxf", inhalt: M2M.blattZuDxf(b) });
-      dateien.push({ name: "SVG/" + name + ".svg", inhalt: M2M.blattZuSvg(b) });
-    });
+    // EINE Laserdatei mit allen Platten (Überschrift + Bemaßung je Platte), dazu Bauplan und Liesmich
+    var dateiname = "Map2Model_Laser_" + basis + "_M1-" + cfg.massstab;
+    var alle = M2M.alleZusammen(erg.blaetter, platteVon(cfg));
+    var dateien = [
+      { name: dateiname + ".dxf", inhalt: M2M.blattZuDxf(alle) },
+      { name: dateiname + ".svg", inhalt: M2M.blattZuSvg(alle) },
+    ];
     var liesmich = [
       "Map2Model – Laserdateien",
       "Quelle: " + M2M.datei.name,
       "Maßstab 1:" + cfg.massstab + " · Material: " + cfg.material + " " + cfg.staerke + " mm · Platte " + cfg.plattenB + " × " + cfg.plattenH + " mm",
-      "Bauweise: " + (cfg.bauweise === "volumen" ? "Volumen (Wände + Dach)" : "Geschichtet"),
+      "Bauweise: " + (cfg.bauweise === "volumen" ? "Volumen (Wände + Dach)" : "Geschichtet") + " · Gebäude " + (cfg.beschriften === false ? "ohne" : "mit") + " Beschriftung",
       "",
       "EINKAUFEN: " + erg.finnpappen + " Platten à " + cfg.plattenB + " × " + cfg.plattenH + " mm · " + cfg.material + " " + cfg.staerke + " mm",
       "(Die Übersicht/Aufteilungsplan wird nicht gelasert und ist nicht mitgezählt.)",
       "",
-      "Platten (" + erg.blaetter.length + " Dateien):",
+      "Laserdatei: " + dateiname + ".dxf (alle Platten in einer Datei, gleiche Ansicht als .svg)",
+      "Über jeder Platte steht ihr Name, unten/links ist die Pappe bemaßt – beides schwarz und AUSSERHALB des gelben Laserbetts (Platte für Platte lasern, nur den Inhalt im gelben Rahmen).",
+      "",
+      "Platten (" + erg.blaetter.length + "):",
     ].concat(erg.blaetter.map(function (b) { return "  " + b.name; }), [
       "",
       "Farben: Rot = schneiden · Blau = anritzen · Gelb = Rahmen/Orientierung · Schwarz = gravieren",
@@ -229,17 +237,13 @@
     ], erg.pruefung.map(function (p) { return "  [" + (p.ok ? "OK" : "!!") + "] " + p.text; }),
       erg.hinweise.length ? ["", "Hinweise:"].concat(erg.hinweise.map(function (h) { return "  - " + h; })) : [],
       ["", "Erzeugt mit Map2Model · Kartendaten © OpenStreetMap-Mitwirkende"]).join("\r\n");
-    dateien.unshift({ name: "LIESMICH.txt", inhalt: liesmich });
-    dateien.unshift({ name: "00_Uebersicht.html", inhalt: M2M.uebersichtHtml(erg, cfg, M2M.datei.name) });
-    var alle = M2M.alleZusammen(erg.blaetter);
-    dateien.splice(2, 0,
-      { name: "00_Alle_Platten_nebeneinander.svg", inhalt: M2M.blattZuSvg(alle) },
-      { name: "00_Alle_Platten_nebeneinander.dxf", inhalt: M2M.blattZuDxf(alle) });
+    dateien.push({ name: "Bauplan_Uebersicht.html", inhalt: M2M.uebersichtHtml(erg, cfg, M2M.datei.name) });
+    dateien.push({ name: "LIESMICH.txt", inhalt: liesmich });
 
     var blob = M2M.zip(dateien);
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "Map2Model_Laser_" + basis + "_M1-" + cfg.massstab + ".zip";
+    a.download = dateiname + ".zip";
     document.body.appendChild(a); a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
   }
@@ -247,9 +251,11 @@
   // ---------- Ergebnis anzeigen: Prüfung links, Platten rechts ----------
   // Vorschau: zuerst „Alle Platten nebeneinander“, dann jede Platte einzeln
   var blattNr = 0;
+  // Größe und Lage der Pappe im Laserbett (für die Bemaßung) – Pappe liegt 5 mm vom Bettrand
+  function platteVon(cfg) { return { b: cfg.plattenB, h: cfg.plattenH, x: 5, y: 5 }; }
   function vorschauListe() {
     var erg = M2M.laser;
-    if (!erg.alle) erg.alle = M2M.alleZusammen(erg.blaetter);
+    if (!erg.alle) erg.alle = M2M.alleZusammen(erg.blaetter, platteVon(M2M.letzteCfg || {}));
     return [erg.alle].concat(erg.blaetter);
   }
   function zeigeBlatt() {
@@ -261,7 +267,7 @@
     $("vorschau-blatt").innerHTML = M2M.blattZuSvg(b, true);
     $("blatt-nav").hidden = false;
     $("blatt-name").textContent = blattNr === 0
-      ? "Alle " + erg.blaetter.length + " Platten nebeneinander – mit › einzeln ansehen"
+      ? "Laserdatei: alle " + erg.blaetter.length + " Platten in einer Datei – mit › einzeln ansehen"
       : b.name;
   }
   $("knopf-uebersicht").addEventListener("click", function () {

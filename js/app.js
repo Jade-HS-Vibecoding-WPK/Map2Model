@@ -10,7 +10,7 @@ window.M2M = {
   datei: null,
 };
 
-var SCHRITTE = ["gebiet", "revit", "laser"];
+var SCHRITTE = ["gebiet", "revit", "laser"]; // 1 Gebiet wählen · 2 Im CAD-Programm bearbeiten · 3 Laserdatei
 
 // ---------- Schritt anzeigen ----------
 M2M.zeigeAnsicht = function (name) {
