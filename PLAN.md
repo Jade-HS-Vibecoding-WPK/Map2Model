@@ -321,7 +321,8 @@ Behoben:
 - **Live-Link** https://jade-hs-vibecoding-wpk.github.io/Map2Model/ – muss im Repo unter Settings → Pages (Branch `main`, Ordner `/root`) eingeschaltet werden (Team).
 - **Demo-Ordner** `WPK - KI/Demo/` (nicht im Repo): `Demo starten.cmd` (Karte direkt an der KW-Brücke), Notfall-Dateien (IFC aus Schritt 1, „bearbeitete“ IFC mit `Neubau_Gebäude_1`, fertige Laser-ZIP), `Demo-Ablauf.txt` (Sprechzettel nach der Gliederung aus Tag 5).
 - Poster macht das Team selbst.
-- Offen: Pages einschalten + testen (Handy, privates Fenster), Release v1.0.0, Revit-Add-in behalten oder entfernen.
+- Pages ist an (19.11.), Live-Link getestet: Startseite + kompletter Ablauf (OSM → IFC → web-ifc → Laserdatei) laufen online.
+- Offen: Test am Handy/privaten Fenster durch das Team, Release v1.0.0 (Team im Browser), Revit-Add-in behalten oder entfernen.
 
 ### Poster A1 (Do 19.11.)
 - Poster nach der rot-weißen Werkstatt-Vorlage (Seite 1 von „Poster-Vorlage A0.pdf“), auf **A1 (594 × 841 mm)** umgesetzt: `WPK - KI/Poster/poster.html` → `Map2Model_Poster_A1.pdf` (gedruckt mit Edge im Hintergrund). Bilder in `Poster/bilder/` (echte Ansichten aus Map2Model). Namen/Matrikelnummern sind noch Platzhalter.
