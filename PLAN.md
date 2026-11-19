@@ -314,6 +314,15 @@ Behoben:
 - **Schild**: Die Beschriftung wird nicht mehr auf die Grundplatte graviert, sondern auf ein **eigenes kleines Pappstück** (rot ausgeschnitten, Schrift schwarz graviert, **nicht** gespiegelt). Liegt mit auf einer Gebäude-Platte („SCHILD“). Inhalt: jede Zeile aus dem Feld „Beschriftung“ + automatisch „M 1:…“ + **Nordpfeil** rechts daneben. Norden = obere Kante der Bodenplatte (IFC ist genordet) → Schild parallel zur Plattenkante aufkleben. Steht auch in der Bauanleitung.
 - **Schriftgrößen passen sich dem Maßstab an**: Schild-Schrift wächst mit der Modellgröße (3,6–9 mm erste Zeile, z. B. 1:500 ≈ 176 × 51 mm, 1:1000 ≈ 128 × 39 mm). Straßennamen starten bei ca. 2,4 m echter Höhe (1:200 → 8 mm, 1:500 → 4,8 mm, 1:1000 → 2,4 mm) und werden kleiner, bis sie in die Straße passen (min. 1,8 mm).
 
+### Veröffentlichung + Live-Demo (Do 19.11., Mittag)
+- Auf GitHub hochgeladen (`main`, Commit „Laserdatei, 3D-Startseite, CAD-Öffner, README“). README neu: Satz, Live-Link, Screenshots (`docs/screenshots/`), Starten, Technik, Quellen mit Lizenzen, Bibliotheken mit Version/Lizenz, KI-Nutzung.
+- **Lokal starten:** `Map2Model starten.cmd` (Doppelklick) → `start/server.ps1` (kleiner Server, Port 8080) + Browser. Kein Python/Node nötig.
+- **QR-Code** zur Live-Demo: `docs/qr-code.png` (2320 px, für A1).
+- **Live-Link** https://jade-hs-vibecoding-wpk.github.io/Map2Model/ – muss im Repo unter Settings → Pages (Branch `main`, Ordner `/root`) eingeschaltet werden (Team).
+- **Demo-Ordner** `WPK - KI/Demo/` (nicht im Repo): `Demo starten.cmd` (Karte direkt an der KW-Brücke), Notfall-Dateien (IFC aus Schritt 1, „bearbeitete“ IFC mit `Neubau_Gebäude_1`, fertige Laser-ZIP), `Demo-Ablauf.txt` (Sprechzettel nach der Gliederung aus Tag 5).
+- Poster macht das Team selbst.
+- Offen: Pages einschalten + testen (Handy, privates Fenster), Release v1.0.0, Revit-Add-in behalten oder entfernen.
+
 ### Poster A1 (Do 19.11.)
 - Poster nach der rot-weißen Werkstatt-Vorlage (Seite 1 von „Poster-Vorlage A0.pdf“), auf **A1 (594 × 841 mm)** umgesetzt: `WPK - KI/Poster/poster.html` → `Map2Model_Poster_A1.pdf` (gedruckt mit Edge im Hintergrund). Bilder in `Poster/bilder/` (echte Ansichten aus Map2Model). Namen/Matrikelnummern sind noch Platzhalter.
 - Dafür in der App ergänzt: **Standbild** der Startseite `?standbild=1` / `?standbild=offen` (&winkel=…), **Direktlink** `?ort=Breite,Länge,Name` springt ohne Suche zu einem Ort (z. B. für die Präsentation).
